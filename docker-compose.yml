@@ -1,0 +1,52 @@
+services:
+  api:
+    container_name: fana-api
+    build: ./api
+    restart: unless-stopped
+    ports:
+      - $API_LOCAL_PORT:$API_DOCKER_PORT
+    env_file: ./.env
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - ./api:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - fana
+
+  ui:
+    container_name: fana-ui
+    build: ./ui
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=$API_URL
+    ports:
+      - $UI_LOCAL_PORT:$UI_DOCKER_PORT
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    networks:
+      - fana
+
+  db:
+    container_name: fana-db
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    networks:
+      - fana
+
+networks:
+  fana:
+    driver: bridge
