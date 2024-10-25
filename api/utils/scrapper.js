@@ -45,7 +45,7 @@ async function scrapePage(url, regex) {
 }
 
 // Function to save data to PostgreSQL
-async function saveToDatabase(tableName, data) {
+async function saveToDatabase(tableName, data, onConflict = 'id') {
     const client = await pool.connect();
 
     try {
@@ -56,7 +56,7 @@ async function saveToDatabase(tableName, data) {
         // Create a parameterized values string ($1, $2, etc.)
         const placeholders = values.map((_, index) => `$${index + 1}`).join(", ");
   
-        const query = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders}) ON CONFLICT (id) DO NOTHING`;
+        const query = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders}) ON CONFLICT (${onConflict}) DO NOTHING`;
 
         await client.query(query, values);
   
@@ -88,7 +88,7 @@ async function processTeams() {
         // Save histories
         for (const { id: teamId, history } of Object.values(data)) {
             for (const h of history) {
-              await saveToDatabase('team_histories', { ...h, teamId });
+              await saveToDatabase('team_histories', { ...h, teamId }, 'teamId, ');
             }
         }
     } catch (error) {
@@ -100,6 +100,33 @@ async function processTeams() {
     }
 }
 
+async function processPlayers({ id, title }) {
+  const url = `${URL}/team/${title}/2024`;
+  const regex = /var playersData\s*=\s*JSON\.parse\('([^']+)'\);/;
+
+  const data = await scrapePage(url, regex);
+
+  if (!data) {
+      console.log('No data to save.');
+      return;
+  }
+
+  try {
+    // Save players
+    for (const player of data) {
+      const { team_title, ...playerData } = player
+
+      await saveToDatabase('players', { ...playerData, teamId: id });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    // Close the pool after all operations are done
+    await pool.end();
+    console.log('Database pool closed.');
+  }
+}
+
 // Main function to run the scraping and saving process
 async function main() {
     // const regex = /var playersData\s*=\s*JSON\.parse\('([^']+)'\);/;
@@ -107,7 +134,8 @@ async function main() {
     // const regex = /var datesData\s\s*=\s*JSON\.parse\('([^']+)'\);/;
     // const data = await scrapePage(`${URL}/league/EPL/2024`, regex);
     
-    await processTeams();
+    // await processTeams();
+    await processPlayers({ title: 'Chelsea', id: 80 });
 }
   
 main();

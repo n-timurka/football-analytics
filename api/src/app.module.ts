@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TeamsModule } from './teams/teams.module';
+import { PlayersModule } from './players/players.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { TeamsModule } from './teams/teams.module';
       }),
     }),
     TeamsModule,
+    PlayersModule,
   ],
   controllers: [],
   providers: [],

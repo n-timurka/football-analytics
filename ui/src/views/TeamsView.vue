@@ -10,6 +10,7 @@ import TabPanel from 'primevue/tabpanel';
 import TeamsTable from '@/components/teams/TeamsTable.vue';
 import Message from 'primevue/message';
 import TeamsChart from '@/components/teams/TeamsChart.vue';
+import ProgressSpinner from 'primevue/message';
 
 const teams = ref<Team[] | null>()
 const { get, error, loading } = useApi<Team[]>()

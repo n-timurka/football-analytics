@@ -1,3 +1,5 @@
+import type { Player } from './player'
+
 export type TeamHistory = {
   id: number
   teamId: number
@@ -31,5 +33,7 @@ export type TeamHistory = {
 export type Team = {
   id: number
   title: string
+  slug: string
   histories: TeamHistory[]
+  players: Player[]
 }

@@ -33,6 +33,7 @@ const calculateTableData = () => {
     props.teams.forEach((team) => {
         const teamData = {
             title: team.title,
+            slug: team.slug,
             games: 0,
             wins: 0,
             draws: 0,
@@ -84,7 +85,13 @@ watch(
                 {{ index + 1 }}
             </template>
         </Column>
-        <Column field="title" header="Club" />
+        <Column field="title" header="Club">
+            <template #body="{ data }">
+                <RouterLink :to="{ name: 'team', params: { slug: data.slug }}">
+                    {{ data.title }}
+                </RouterLink>
+            </template>
+        </Column>
         <Column field="games" header="Played" />
         <Column field="wins" header="Won" />
         <Column field="draws" header="Drawn" />
