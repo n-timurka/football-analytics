@@ -1,3 +1,4 @@
+import type { Game } from './game'
 import type { Player } from './player'
 
 export type TeamHistory = {
@@ -36,4 +37,6 @@ export type Team = {
   slug: string
   histories: TeamHistory[]
   players: Player[]
+  hGames: Game[]
+  aGames: Game[]
 }

@@ -19,7 +19,18 @@ export class TeamsService {
   findOne(slug: string) {
     return this.teamsRepository.findOne({
       where: { slug },
-      relations: ['histories', 'players'],
+      relations: {
+        histories: true,
+        players: true,
+        hGames: {
+          h: true,
+          a: true,
+        },
+        aGames: {
+          h: true,
+          a: true,
+        },
+      },
     });
   }
 }

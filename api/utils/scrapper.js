@@ -127,15 +127,56 @@ async function processPlayers({ id, title }) {
   }
 }
 
+async function processTeamStats({ id, title }) {
+  const url = `${URL}/team/${title}/2024`;
+  const regex = /var statisticsData\s*=\s*JSON\.parse\('([^']+)'\);/;
+
+  const data = await scrapePage(url, regex);
+  console.log(data)
+}
+
+async function processTeamGames({ id, title }) {
+  const url = `${URL}/team/${title}/2024`;
+  const regex = /var datesData\s*=\s*JSON\.parse\('([^']+)'\);/;
+
+  const data = await scrapePage(url, regex);
+  if (!data) {
+    console.log('No data to save.');
+    return;
+  }
+
+  try {
+    // Save games
+    for (const game of data) {
+      await saveToDatabase('games', {
+        id: game.id,
+        h_id: game.h.id,
+        a_id: game.a.id,
+        h_goals: game.goals.h,
+        a_goals: game.goals.a,
+        h_xg: game.xG.h,
+        a_xg: game.xG.a,
+        datetime: game.datetime,
+      });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    // Close the pool after all operations are done
+    await pool.end();
+    console.log('Database pool closed.');
+  }
+}
+
 // Main function to run the scraping and saving process
 async function main() {
-    // const regex = /var playersData\s*=\s*JSON\.parse\('([^']+)'\);/;
-    // const regex = /var teamsData\s*=\s*JSON\.parse\('([^']+)'\);/;
-    // const regex = /var datesData\s\s*=\s*JSON\.parse\('([^']+)'\);/;
-    // const data = await scrapePage(`${URL}/league/EPL/2024`, regex);
-    
     // await processTeams();
-    await processPlayers({ title: 'Chelsea', id: 80 });
+
+    // await processPlayers({ title: 'Chelsea', id: 80 });
+
+    // await processTeamStats({ title: 'Chelsea', id: 80 });
+
+    await processTeamGames({ title: 'Chelsea', id: 80 });
 }
   
 main();

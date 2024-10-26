@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Tag from 'primevue/column'
 import type { Player } from '@/types/player';
 
 defineProps<{
