@@ -132,7 +132,38 @@ async function processTeamStats({ id, title }) {
   const regex = /var statisticsData\s*=\s*JSON\.parse\('([^']+)'\);/;
 
   const data = await scrapePage(url, regex);
-  console.log(data)
+
+  const teamData = {}
+  const teamAgainstData = {}
+  Object.keys(data).forEach(stat => {
+    Object.keys(data[stat]).forEach(item => {
+      const { against, ...d } = data[stat][item]
+
+      if (teamData[stat]) {
+        teamData[stat][item] = d
+      } else {
+        teamData[stat] = { [item]: d }
+      }
+
+      if (teamAgainstData[stat]) {
+        teamAgainstData[stat][item] = against
+      } else {
+        teamAgainstData[stat] = { [item]: against }
+      }
+    })
+  })
+
+  await saveToDatabase('team_stats', {
+    ...teamData,
+    team_id: id,
+    is_against: false,
+  }, 'team_id, is_against')
+  
+  await saveToDatabase('team_stats', {
+    ...teamAgainstData,
+    team_id: id,
+    is_against: true,
+  }, 'team_id, is_against')
 }
 
 async function processTeamGames({ id, title }) {
@@ -176,7 +207,7 @@ async function main() {
 
     // await processTeamStats({ title: 'Chelsea', id: 80 });
 
-    await processTeamGames({ title: 'Chelsea', id: 80 });
+    // await processTeamGames({ title: 'Chelsea', id: 80 });
 }
   
 main();
