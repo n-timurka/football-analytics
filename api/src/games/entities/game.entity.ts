@@ -31,6 +31,6 @@ export class Game {
   @Column({ type: 'float', name: 'a_xg', nullable: true })
   axG: number | null;
 
-  @Column('date')
+  @Column('timestamp')
   datetime: Date;
 }

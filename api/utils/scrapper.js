@@ -116,7 +116,7 @@ async function processPlayers({ id, title }) {
     for (const player of data) {
       const { team_title, ...playerData } = player
 
-      await saveToDatabase('players', { ...playerData, teamId: id });
+      await saveToDatabase('players', { ...playerData, team_id: id });
     }
   } catch (error) {
     console.error('Error:', error);
@@ -199,15 +199,63 @@ async function processTeamGames({ id, title }) {
   }
 }
 
+async function processRostersData(id) {
+  const url = `${URL}/match/${id}`;
+  const regex = /var rostersData\s*=\s*JSON\.parse\('([^']+)'\);/;
+
+  const data = await scrapePage(url, regex);
+  if (!data) {
+    console.log('No data to save.');
+    return;
+  }
+
+  try {
+    // Save games
+    for (const p of Object.values(data.a)) {
+      const { id: gamePlayerId, own_goals, player, h_a, xG, xA, time, roster_out, roster_in, xGChain, xGBuildup, positionOrder, ...playerData } = p
+
+      await saveToDatabase('game_players', {
+        ...playerData,
+        minutes: time,
+        x_g: xG,
+        x_a: xA,
+        game_id: id,
+        is_starter: roster_out === '0',
+      }, 'player_id,game_id');
+    }
+
+    for (const p of Object.values(data.h)) {
+      const { id: gamePlayerId, own_goals, player, h_a, xG, xA, time, roster_out, roster_in, xGChain, xGBuildup, positionOrder, ...playerData } = p
+
+      await saveToDatabase('game_players', {
+        ...playerData,
+        minutes: time,
+        x_g: xG,
+        x_a: xA,
+        game_id: id,
+        is_starter: roster_out === '0',
+      }, 'player_id,game_id');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    // Close the pool after all operations are done
+    await pool.end();
+    console.log('Database pool closed.');
+  }
+}
+
 // Main function to run the scraping and saving process
 async function main() {
-    // await processTeams();
+  // await processTeams();
 
-    // await processPlayers({ title: 'Chelsea', id: 80 });
+  // await processPlayers({ title: 'Liverpool', id: 87 });
 
-    // await processTeamStats({ title: 'Chelsea', id: 80 });
+  // await processTeamStats({ title: 'Chelsea', id: 80 });
 
-    // await processTeamGames({ title: 'Chelsea', id: 80 });
+  // await processTeamGames({ title: 'Chelsea', id: 80 });
+
+  await processRostersData(26679);
 }
   
 main();
