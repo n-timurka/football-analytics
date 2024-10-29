@@ -1,36 +1,41 @@
-import { Team } from 'src/teams/entities/team.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { GameEvent } from './game-event.entity';
+
+type GameTeamStat = {
+  goals: number;
+  xg: number;
+  shots: number;
+  shotOnTarget: number;
+  deep: number;
+  ppda: number;
+};
 
 @Entity('games')
 export class Game {
-  @PrimaryGeneratedColumn() public id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @ManyToOne(() => Team, (team) => team.hGames)
-  @JoinColumn({ name: 'h_id' })
-  h: Team;
+  @Column({ name: 'h_id', type: 'int' })
+  hId: number;
 
-  @ManyToOne(() => Team, (team) => team.aGames)
-  @JoinColumn({ name: 'a_id' })
-  a: Team;
+  @Column({ name: 'a_id', type: 'int' })
+  aId: number;
 
-  @Column({ type: 'int', name: 'h_goals', nullable: true })
-  hGoals: number | null;
+  @Column({ nullable: true })
+  result: string | null;
 
-  @Column({ type: 'int', name: 'a_goals', nullable: true })
-  aGoals: number | null;
+  @Column({ name: 'h_stats', type: 'simple-json', nullable: true })
+  hStats: GameTeamStat | null;
 
-  @Column({ type: 'float', name: 'h_xg', nullable: true })
-  hxG: number | null;
+  @Column({ name: 'a_stats', type: 'simple-json', nullable: true })
+  aStats: GameTeamStat | null;
 
-  @Column({ type: 'float', name: 'a_xg', nullable: true })
-  axG: number | null;
+  @Column({ type: 'simple-json', nullable: true })
+  chanses: { w: number; d: number; l: number };
 
   @Column('timestamp')
   datetime: Date;
+
+  @OneToMany(() => GameEvent, (event) => event.game)
+  events: GameEvent[];
 }

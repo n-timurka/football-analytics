@@ -22,14 +22,6 @@ export class TeamsService {
       relations: {
         histories: true,
         players: true,
-        hGames: {
-          h: true,
-          a: true,
-        },
-        aGames: {
-          h: true,
-          a: true,
-        },
       },
     });
   }
