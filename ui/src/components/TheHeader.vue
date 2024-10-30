@@ -9,12 +9,18 @@ import { RouterLink } from 'vue-router'
                 Football<strong>Analytics</strong>
             </RouterLink>
 
-            <nav>
+            <nav class="flex space-x-2">
                 <RouterLink
-                 :to="{ name: 'teams' }"
-                  class="block rounded py-1 px-3 hover:bg-white/10" 
-                  active-class="bg-sky-700">
-                  Teams
+                    :to="{ name: 'games' }"
+                    class="block rounded py-1 px-3 hover:bg-white/10" 
+                    active-class="bg-sky-700">
+                    Games
+                </RouterLink>
+                <RouterLink
+                    :to="{ name: 'teams' }"
+                    class="block rounded py-1 px-3 hover:bg-white/10" 
+                    active-class="bg-sky-700">
+                    Teams
                 </RouterLink>
             </nav>
         </div>

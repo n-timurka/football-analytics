@@ -21,7 +21,6 @@ export class TeamsService {
       where: { slug },
       relations: {
         histories: true,
-        players: true,
       },
     });
   }

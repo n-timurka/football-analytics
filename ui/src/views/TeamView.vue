@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useApi } from '@/composables/useApi';
 import type { Team } from '@/types/team';
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router'
 import TeamSquad from '@/components/team/TeamSquad.vue';
 import Tabs from 'primevue/tabs';
@@ -9,34 +9,31 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
+import Message from 'primevue/message';
 import TeamGames from '@/components/team/TeamGames.vue';
+import TeamLoading from '@/components/team/TeamLoading.vue';
+import TeamOverview from '@/components/team/Overview.vue';
+import TeamStats from '@/components/team/Stats.vue';
 
-const { slug } = useRoute().params
+const route = useRoute()
 
 const team = ref<Team | null>()
 const { get, error, loading } = useApi<Team>()
 
 watch(
-    () => slug,
-    async () => {
-        team.value = await get(`/teams/${slug}`)
+    () => route.params.slug,
+    async (value) => {
+        team.value = await get(`/teams/${value}`)
     },
     { immediate: true },
 )
-
-const games = computed(() => {
-    if (!team.value) return
-
-    return [
-        ...team.value.hGames,
-        ...team.value.aGames,
-    ]
-})
 </script>
 
 <template>
-    <main v-if="team" class="container mx-auto my-4">
-        <Tabs value="overview">
+    <main class="container mx-auto my-4">
+        <TeamLoading v-if="loading" />
+        <Message v-else-if="error" severity="error">Team data loading was failed...</Message>
+        <Tabs v-else-if="team" value="overview">
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-2xl font-semibold">{{ team.title }}</h1>
 
@@ -50,16 +47,16 @@ const games = computed(() => {
 
             <TabPanels>
                 <TabPanel value="overview">
-                    Overview
+                    <TeamOverview :team-id="team.id" />
                 </TabPanel>
                 <TabPanel value="squad">
-                    <TeamSquad :players="team.players" />
+                    <TeamSquad :team-id="team.id" />
                 </TabPanel>
                 <TabPanel value="games">
-                    <TeamGames v-if="games" :games="games" :team-id="team.id" />
+                    <TeamGames :team-id="team.id" />
                 </TabPanel>
                 <TabPanel value="stats">
-                    Statistics
+                    <TeamStats :team-id="team.id" />
                 </TabPanel>
             </TabPanels>
         </Tabs>

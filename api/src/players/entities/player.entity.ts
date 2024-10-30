@@ -6,46 +6,71 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { PlayerPosition } from '../enums/position.enum';
 
 @Entity('players')
 export class Player {
-  @PrimaryGeneratedColumn() public id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({ name: 'player_name' }) playerName: string;
+  @Column()
+  name: string;
 
-  @Column({ name: 'team_id' }) teamId: number;
+  @Column({ type: 'int', nullable: true })
+  number: number | null;
 
-  @ManyToOne(() => Team, (team) => team.players)
+  @Column({ nullable: true })
+  photo: string | null;
+
+  @Column({ name: 'team_id', type: 'int' })
+  teamId: number;
+
+  @ManyToOne(() => Team, (team) => team.players, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'team_id' })
   team: Team;
 
-  @Column() games: number;
+  @Column({ type: 'enum', enum: PlayerPosition, nullable: true })
+  position: PlayerPosition;
 
-  @Column() time: number;
+  @Column('int')
+  games: number;
 
-  @Column() goals: number;
+  @Column('int')
+  time: number;
 
-  @Column('float') xG: number;
+  @Column('int')
+  goals: number;
 
-  @Column() assists: number;
+  @Column('float')
+  xG: number;
 
-  @Column('float') xA: number;
+  @Column('int')
+  assists: number;
 
-  @Column() shots: number;
+  @Column('float')
+  xA: number;
 
-  @Column({ name: 'key_passes' }) keyPasses: number;
+  @Column('int')
+  shots: number;
 
-  @Column({ name: 'yellow_cards' }) yellowCards: number;
+  @Column({ name: 'key_passes', type: 'int' })
+  keyPasses: number;
 
-  @Column({ name: 'red_cards' }) redCards: number;
+  @Column({ name: 'yellow_cards', type: 'int' })
+  yellowCards: number;
 
-  @Column() position: 'G' | 'D' | 'M' | 'F';
+  @Column({ name: 'red_cards', type: 'int' })
+  redCards: number;
 
-  @Column() npg: number;
+  @Column('int')
+  npg: number;
 
-  @Column('float') npxG: number;
+  @Column('float')
+  npxG: number;
 
-  @Column('float') xGChain: number;
+  @Column('float')
+  xGChain: number;
 
-  @Column('float') xGBuildup: number;
+  @Column('float')
+  xGBuildup: number;
 }

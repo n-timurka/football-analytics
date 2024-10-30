@@ -1,5 +1,13 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { GameEvent } from './game-event.entity';
+import { Team } from 'src/teams/entities/team.entity';
 
 type GameTeamStat = {
   goals: number;
@@ -15,11 +23,19 @@ export class Game {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'h_id', type: 'int' })
+  @Column({ type: 'int', name: 'h_id' })
   hId: number;
 
-  @Column({ name: 'a_id', type: 'int' })
+  @ManyToOne(() => Team)
+  @JoinColumn({ name: 'h_id' })
+  h: Team;
+
+  @Column({ type: 'int', name: 'a_id' })
   aId: number;
+
+  @ManyToOne(() => Team)
+  @JoinColumn({ name: 'a_id' })
+  a: Team;
 
   @Column({ nullable: true })
   result: string | null;

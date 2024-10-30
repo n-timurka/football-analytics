@@ -1,13 +1,14 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { PlayersService } from './players.service';
+import { GetPlayersDto } from './dto/get-players.dto';
 
 @Controller('players')
 export class PlayersController {
   constructor(private readonly playersService: PlayersService) {}
 
   @Get()
-  findAll() {
-    return this.playersService.findAll();
+  findAll(@Query() query: GetPlayersDto) {
+    return this.playersService.findAll(query);
   }
 
   @Get(':id')

@@ -129,11 +129,22 @@ async function processPlayers({ id, title }) {
   }
 
   try {
+    const positions = {
+      GK: 0,
+      D: 1,
+      M: 2,
+      F: 3,
+    }
     // Save players
     for (const player of data) {
-      const { team_title, ...playerData } = player
+      const { team_title, player_name: name, position, ...playerData } = player
 
-      await saveToDatabase('players', { ...playerData, team_id: id });
+      await saveToDatabase('players', {
+        ...playerData,
+         name,
+        position: positions[position] || null,
+        team_id: id,
+      });
     }
   } catch (error) {
     console.error('Error:', error);
@@ -419,7 +430,9 @@ async function main() {
 
   // await processGames();
 
-  await processGameEvents(26679);
+  await processPlayers({ id: 80, title: 'Chelsea' });
+
+  // await processGameEvents(26679);
 }
   
 main();
